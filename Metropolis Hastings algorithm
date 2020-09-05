@@ -1,0 +1,31 @@
+import numpy as np
+import matplotlib.pyplot as plt
+import random as random
+import math as math
+
+def coin_flip(p):
+    threshold = random.uniform(0, 1)
+    
+    if (p >=threshold):
+        return True
+    else:
+        return False
+
+def beta_distribution(x, alpha, beta):
+    return x**(alpha-1) * (1-x)**(beta-1)
+
+    
+def metropolis(alpha, beta, num_walks = 5000):  
+    states = []
+    previous_state = random.uniform(0, 1)
+    for i in range (num_walks):
+        states.append(previous_state)
+        next_state = random.uniform(0, 1)
+
+        transition_prob = beta_distribution(next_state, alpha, beta)/beta_distribution(previous_state, alpha, beta)
+        transition_occur = min(1, transition_prob)
+
+        if (coin_flip(transition_occur)):
+            previous_state = next_state
+        
+    return states
