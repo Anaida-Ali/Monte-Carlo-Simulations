@@ -1,0 +1,82 @@
+import numpy as np
+import matplotlib.pyplot as plt
+import random as random
+import math as math
+
+pi = math.pi
+def get_random_number(min_val, max_val):
+    return (min_val + random.uniform(0, 1) * (max_val - min_val))
+
+def f_average(num_rep):
+    min_val = 0
+    max_val = 5
+    running_sum = 0
+    y_run = []
+    for i in range (num_rep):
+        x = get_random_number(min_val, max_val)
+        y = f(x)
+        y_run.append(y)
+        running_sum = running_sum + y
+        
+    return (max_val - min_val) * running_sum/num_rep, y_run
+    
+variance, lamda = importance_sampling(num_iter = 5000)           
+
+def f(x):
+    return math.exp(-x)/(1 + (x-1)**2)
+
+def random_number_generation(lower_limit = 0, upper_limit = 5):
+    return lower_limit + random.uniform(0, 1) * (upper_limit - lower_limit)
+
+def monte_carlo_sampling(num_samples = 5000, lower_limit = 0, upper_limit = 5):
+    running_sum = 0
+    samples = []
+    for i in range (num_samples):
+        running_samples = f(random_number_generation())
+        samples.append(running_samples)
+        running_sum+= running_samples
+        
+    return running_sum/num_samples * (upper_limit - lower_limit), samples
+
+def g(x, lamda):
+    return lamda * math.exp(-lamda * x)
+
+def G_inverse(r, lamda):
+    return -1/lamda * math.log(r)
+    
+value, dist = monte_carlo_sampling()
+
+def lamda_min(num_samples = 5000):
+    variance = []
+    values = []
+    for lamda in [i*0.05 for i in range(1, 61)]:
+        running_sum = 0
+        samples = []
+        for i in range (num_samples):
+            x = random_number_generation()
+            running_samples = f(x)/g(x, lamda)
+            samples.append(running_samples)
+            running_sum+= running_samples
+        
+        variance.append(np.var(samples))
+        values.append(running_sum/num_samples)
+    
+    return variance, values
+
+def importance_sampling(lamda, num_samples = 5000):
+    running_sum = 0
+    samples = []
+    for i in range (num_samples):
+        r = random.uniform(0, 1)
+        ri = G_inverse(r, lamda)
+        term = f(ri)/g(ri, lamda)
+        samples.append(term)
+        running_sum+= term
+        
+    return running_sum/num_samples, samples
+    
+var, val = lamda_min()
+lamda_list = [i*0.05 for i in range(1, 61)]
+min_lamda = lamda_list[np.argmin(var)]
+sampled_avg, sample_values = importance_sampling(min_lamda, 10000)
+
