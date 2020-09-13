@@ -1,0 +1,58 @@
+import numpy as np
+import matplotlib.pyplot as plt
+import random as random
+import math as math
+def wavefunction(x, beta):
+    return np.exp(-beta * x**2)
+
+def integral(x, beta):
+    proba = wavefunction(x, beta)
+    return (beta + (0.5 - 2.0 * beta**2)*x**2) * proba**2
+
+beta_range = np.arange(0.1, 2, 0.05)
+
+def sampling(num_samples = 5000):
+    variance_sample = []
+    value_mean = []
+    for beta in beta_range:
+        values = []
+        for i in range (num_samples):
+            x = random_number(-6, 6)
+            y = integral(x, beta)
+            values.append(y)
+        
+        value_mean.append(np.mean(values))
+        variance_sample.append(np.var(values))
+        
+    return value_mean, variance_sample
+    
+    mean, var = sampling()
+    beta_min = beta_range[np.argmin(var)]
+    plt.plot(beta_range, var, "go")
+    
+    def metropolis_psi(step_size = 0.5, num_steps = 10000):
+    previous_state = random.uniform(-step_size/2, step_size/2)
+    states = []
+    for i in range (num_steps):
+        next_state = random.uniform(previous_state - step_size/2, previous_state + step_size/2)
+        acceptance_ratio = (wavefunction(next_state, beta_min))**2/(wavefunction(previous_state, beta_min))**2
+        acceptance_rate = min(acceptance_ratio, 1)
+        
+        if (coin_flip(acceptance_rate)):
+            previous_state = next_state 
+            states.append(previous_state)
+    return states        
+    
+    def stat_average(samples, beta):
+    val = []
+    for i in samples:
+        val.append(integral(i, beta))
+    return np.mean(val)
+    
+    x_val = metropolis_psi()
+    answer = stat_average(x_val, beta_min) * 10 #range of integration is from -5 to 5 here
+    
+ 
+    
+    
+    
