@@ -1,0 +1,52 @@
+def wavefunction_hyd(r, alpha):
+    return alpha * r * math.exp(-alpha * r)
+
+def integral_hyd(r, alpha):
+    proba = wavefunction(r, alpha)
+    return (-1/r - alpha/2 * (alpha - 2/r)) * proba**2
+
+alpha_range = np.arange(0.7, 1.1, 0.1)
+
+def sampling_hyd(num_samples = 10000):
+    variance_sample = []
+    value_mean = []
+    for alpha in alpha_range:
+        values = []
+        for i in range (num_samples):
+            r = random_number(0, 6)
+            y = integral(r, alpha)
+            values.append(y)
+        
+        value_mean.append(np.mean(values))
+        variance_sample.append(np.var(values))
+        
+    return value_mean, variance_sample
+    
+mean_h, var_h = sampling_hyd()
+alpha_min = alpha_range[np.argmin(var_h)]
+
+plt.plot(alpha_range, var_h, "yo")
+
+def metropolis_psi_hyd(step_size = 0.25, num_steps = 10000):
+    previous_state = random.uniform(-step_size/2, step_size/2)
+    states = []
+    for i in range (num_steps):
+        next_state = random.uniform(previous_state - step_size/2, previous_state + step_size/2)
+        acceptance_ratio = (wavefunction_hyd(next_state, alpha_min))**2/(wavefunction(previous_state, alpha_min))**2
+        acceptance_rate = min(acceptance_ratio, 1)
+        
+        if (coin_flip(acceptance_rate)):
+            previous_state = next_state 
+            states.append(previous_state)
+    return states        
+    
+ x_val_hyd = metropolis_psi_hyd()
+ 
+ def stat_average_hyd(samples, alpha):
+    val = []
+    for i in samples:
+        val.append(integral_hyd(i, alpha))
+    return np.mean(val)
+    
+answer_hyd = stat_average(x_val, beta_min)
+answer_hyd * 6 # range of integration is from -3 to 3
